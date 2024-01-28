@@ -8,3 +8,7 @@
 .weather-header{
     background: linear-gradient(90deg, rgb(40, 40, 218), rgb(36, 17, 82));
 }
+
+#dashboard{
+    display: none;
+}
