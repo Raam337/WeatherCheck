@@ -5,14 +5,12 @@ function sendData(city){
     $("#search-form")[0].reset();
     var location = "";
     var coords = [];
-    var coordurl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${APIkey}`
+    var coordurl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=1&appid=${APIkey}`
     fetch(coordurl).then((resp)=>{ return resp.json() }).then( (data)=>{    
         console.log(data);
         if(data.length == 0){
             throw new Error("Place not found");
         } 
-
-        
 
         var now = new Date().toLocaleDateString()
         location = data[0]["name"] + ", " + data[0]["state"] + ", " + data[0]["country"]+ " (" +now+")";
@@ -32,7 +30,7 @@ function sendData(city){
             todayDiv.children().eq(3).text("Humidity: " + (Math.round(curr_data["main"]["humidity"])*10)/10 + " %"); 
         });
 
-        var fiveDayUrl = `http://api.openweathermap.org/data/2.5/forecast?lat=${coords[0]}&lon=${coords[1]}&appid=${APIkey}&cnt=60` 
+        var fiveDayUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coords[0]}&lon=${coords[1]}&appid=${APIkey}&cnt=60` 
         console.log(fiveDayUrl);
         fetch(fiveDayUrl).then( (resp)=> {return resp.json()}).then( (data)=>{
             $("#forecast").empty();
