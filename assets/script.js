@@ -1,5 +1,8 @@
 const APIkey = "9ec750d6e4b0dbc2bd30476d48802f5c";
-const fetchedLocations = [];
+
+$(document).ready(()=>{
+    renderButtons();
+})
 
 function sendData(city){
     $("#search-form")[0].reset();
@@ -16,8 +19,7 @@ function sendData(city){
         location = data[0]["name"] + ", " + data[0]["state"] + ", " + data[0]["country"]+ " (" +now+")";
         coords = [data[0]["lat"],data[0]["lon"]]
         
-        addLocationBtn(data[0]["name"]);
-        fetchedLocations.push(data[0]["name"]);
+        addLocationBtn(data[0]["name"] + ", " + data[0]["state"]);
 
         var currentWurl = `https://api.openweathermap.org/data/2.5/weather?lat=${coords[0]}&lon=${coords[1]}&appid=${APIkey}`
         console.log(currentWurl);
@@ -43,7 +45,7 @@ function sendData(city){
                 card.removeClass("d-none");
                 card.find(".card-header").text(currentDay.dt_txt.split(" ")[0]);
                 card.find(".card-body").attr("src",`https://openweathermap.org/img/wn/${currentDay.weather[0].icon}@4x.png`)
-                $("#forecast").append(card);
+                $("#forecast").prepend(card);
                 card.find(".list-temp").text("Temp: " + (Math.round(currentDay["main"]["temp"]-273.15)*100)/100 + "°C");
                 card.find(".list-wind").text(("Wind: " + (Math.round(currentDay["wind"]["speed"])*10)/10 + " m/s"));
                 card.find(".list-humid").text("Humidity: " + (Math.round(currentDay["main"]["humidity"])*10)/10 + " %")
@@ -64,7 +66,6 @@ function sendData(city){
 $("#search-form").on("submit", function(event){
     event.preventDefault();
     var city = $(this).serializeArray()[0]["value"];
-    
     sendData(city);
 
 
@@ -73,18 +74,36 @@ $("#search-form").on("submit", function(event){
 var savedBtns = $("#history");
 
 function addLocationBtn(city){
-    if(fetchedLocations.includes(city)) return;
-    var btn = $("<button>");
-    btn.on("click",()=>{
-        sendData(city,true);
-    });
-    btn.text(city);
-    btn.addClass("btn btn-secondary mt-1");
-    savedBtns.append(btn);
+    var buttons = JSON.parse(localStorage.getItem("buttonList"));
+    if(buttons == null){
+        buttons = [];
+    }
+    if(!buttons.includes(city)){
+    buttons.push(city);
+    localStorage.setItem("buttonList",JSON.stringify(buttons));
+    }
+    renderButtons();
+    
+
 }
 
 savedBtns.on("click","button",function(event){
-    console.log(event);
+    sendData( $(this).text() );
+    renderButtons();
 })
 
+function renderButtons(){
+    savedBtns.empty();
+    var list = JSON.parse(localStorage.getItem("buttonList"));
+    if(list == null) return
+    for (const i of list) {
+        var btn = $("<button>");
+        btn.on("click",()=>{
+            sendData(i);
+        });
+        btn.text(i);
+        btn.addClass("btn btn-secondary mt-1");
+        savedBtns.append(btn); 
+    }
 
+}
